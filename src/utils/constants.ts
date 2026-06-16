@@ -2,6 +2,8 @@ export type CellType = 'empty' | 'windmill' | 'house' | 'factory' | 'battery' | 
 
 export type ToolType = CellType | 'remove';
 
+export type MoodType = 'calm' | 'focus' | 'vitality' | 'chaos' | 'none';
+
 export interface GridCell {
   x: number;
   y: number;
@@ -50,3 +52,51 @@ export const DAY_LENGTH = 100;
 export const DAY_THRESHOLD = 50;
 export const TICK_INTERVAL = 300;
 export const FAULT_CHANCE = 0.002;
+
+export const BUILDING_MOOD: Record<CellType, MoodType> = {
+  empty: 'none',
+  windmill: 'vitality',
+  house: 'calm',
+  factory: 'focus',
+  battery: 'calm',
+  wire: 'none',
+};
+
+export const MOOD_COLORS: Record<MoodType, string> = {
+  calm: '#60A5FA',
+  focus: '#A78BFA',
+  vitality: '#34D399',
+  chaos: '#F87171',
+  none: '#9CA3AF',
+};
+
+export const MOOD_NAMES: Record<MoodType, string> = {
+  calm: '安宁',
+  focus: '专注',
+  vitality: '活力',
+  chaos: '混乱',
+  none: '无',
+};
+
+export const MOOD_BONUS_THRESHOLDS = [
+  { min: 2, bonus: 0.1 },
+  { min: 4, bonus: 0.2 },
+  { min: 6, bonus: 0.35 },
+  { min: 8, bonus: 0.5 },
+];
+
+export const CHAOS_PENALTY = 0.15;
+
+export interface MoodRegion {
+  mood: MoodType;
+  cells: Array<{ x: number; y: number }>;
+  bonus: number;
+}
+
+export interface MoodBonus {
+  calmConsumptionReduction: number;
+  focusOutputBoost: number;
+  vitalityDayGenBoost: number;
+  chaosPenalty: number;
+  regions: MoodRegion[];
+}

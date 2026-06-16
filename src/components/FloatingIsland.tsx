@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useGameStore } from '../store/useGameStore';
 import { GridCellComponent } from './GridCell';
+import { MoodGlow } from './MoodGlow';
 import { GRID_SIZE } from '../utils/constants';
 
 export const FloatingIsland: React.FC = () => {
-  const { grid, selectedTool, placeOrRemove, rotateCell, repairCell, dayTime } = useGameStore();
+  const { grid, selectedTool, placeOrRemove, rotateCell, repairCell, dayTime, moodBonus } = useGameStore();
 
   const handleCellClick = (x: number, y: number) => {
     const cell = grid[y][x];
@@ -79,28 +80,33 @@ export const FloatingIsland: React.FC = () => {
           }}
         />
 
-        <div
-          className="grid gap-0.5 p-2 rounded-2xl"
-          style={{
-            gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-            background: isNight
-              ? 'linear-gradient(135deg, #1a3a0f 0%, #0f2a08 100%)'
-              : 'linear-gradient(135deg, #8BC34A 0%, #689F38 100%)',
-            boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.2)',
-          }}
-        >
-          {grid.map((row, y) =>
-            row.map((cell, x) => (
-              <div key={`${x}-${y}`} className="grid-cell" data-x={x} data-y={y}>
-                <GridCellComponent
-                  cell={cell}
-                  selectedTool={selectedTool}
-                  onClick={() => handleCellClick(x, y)}
-                  onRightClick={(e) => handleCellRightClick(e, x, y)}
-                />
-              </div>
-            ))
-          )}
+        <div className="relative">
+          <div
+            className="grid gap-0.5 p-2 rounded-2xl relative z-10"
+            style={{
+              gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+              background: isNight
+                ? 'linear-gradient(135deg, #1a3a0f 0%, #0f2a08 100%)'
+                : 'linear-gradient(135deg, #8BC34A 0%, #689F38 100%)',
+              boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.2)',
+            }}
+          >
+            {grid.map((row, y) =>
+              row.map((cell, x) => (
+                <div key={`${x}-${y}`} className="grid-cell" data-x={x} data-y={y}>
+                  <GridCellComponent
+                    cell={cell}
+                    selectedTool={selectedTool}
+                    onClick={() => handleCellClick(x, y)}
+                    onRightClick={(e) => handleCellRightClick(e, x, y)}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+          <div className="absolute inset-0 p-2">
+            <MoodGlow regions={moodBonus.regions} cellSize={56} gap={2} />
+          </div>
         </div>
       </div>
 

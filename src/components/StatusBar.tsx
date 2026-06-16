@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGameStore } from '../store/useGameStore';
-import { Sun, Moon, Zap, Battery, Smile, Meh, Frown } from 'lucide-react';
+import { Sun, Moon, Zap, Battery, Smile, Meh, Frown, Sparkles } from 'lucide-react';
+import { MOOD_COLORS, MOOD_NAMES } from '../utils/constants';
 
 export const StatusBar: React.FC = () => {
   const {
@@ -10,6 +11,7 @@ export const StatusBar: React.FC = () => {
     storedPower,
     maxStorage,
     satisfaction,
+    moodBonus,
     openSettlement,
   } = useGameStore();
 
@@ -135,6 +137,70 @@ export const StatusBar: React.FC = () => {
                       : 'linear-gradient(90deg, #F87171, #EF4444)',
                 }}
               />
+            </div>
+          </div>
+        </div>
+
+        <div className="h-10 w-px bg-gray-200" />
+
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-purple-500" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">情绪共鸣</p>
+            <div className="flex gap-1.5 items-center">
+              {moodBonus.calmConsumptionReduction > 0 && (
+                <div
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{
+                    backgroundColor: `${MOOD_COLORS.calm}20`,
+                    color: MOOD_COLORS.calm,
+                  }}
+                  title="安宁：降低住房耗电"
+                >
+                  安宁 -{Math.round(moodBonus.calmConsumptionReduction * 100)}%
+                </div>
+              )}
+              {moodBonus.focusOutputBoost > 0 && (
+                <div
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{
+                    backgroundColor: `${MOOD_COLORS.focus}20`,
+                    color: MOOD_COLORS.focus,
+                  }}
+                  title="专注：提升工坊产出效率"
+                >
+                  专注 +{Math.round(moodBonus.focusOutputBoost * 100)}%
+                </div>
+              )}
+              {moodBonus.vitalityDayGenBoost > 0 && (
+                <div
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{
+                    backgroundColor: `${MOOD_COLORS.vitality}20`,
+                    color: MOOD_COLORS.vitality,
+                  }}
+                  title="活力：提升白天发电"
+                >
+                  活力 +{Math.round(moodBonus.vitalityDayGenBoost * 100)}%
+                </div>
+              )}
+              {moodBonus.chaosPenalty > 0 && (
+                <div
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{
+                    backgroundColor: `${MOOD_COLORS.chaos}20`,
+                    color: MOOD_COLORS.chaos,
+                  }}
+                  title="混乱：布局混杂，加成降低"
+                >
+                  混乱 -{Math.round(moodBonus.chaosPenalty * 100)}%
+                </div>
+              )}
+              {moodBonus.regions.length === 0 && (
+                <span className="text-xs text-gray-400">无共鸣</span>
+              )}
             </div>
           </div>
         </div>

@@ -151,9 +151,43 @@ function GameGuide({ isNight }: { isNight: boolean }) {
           <b>电线</b>连接建筑，可旋转
         </li>
       </ul>
+
       <div className="mt-4 pt-3 border-t border-gray-300/30">
-        <p className={`text-xs ${isNight ? 'text-slate-400' : 'text-gray-500'}`}>
-          💡 保持80%以上建筑供电可获得最高满意度！
+        <h4 className="text-xs font-bold mb-2 flex items-center gap-1.5">
+          ✨ 情绪共鸣
+        </h4>
+        <ul className="text-xs space-y-1.5">
+          <li className="flex items-start gap-1.5">
+            <span
+              className="inline-block w-3 h-3 rounded-full mt-0.5 flex-shrink-0"
+              style={{ backgroundColor: '#60A5FA' }}
+            />
+            <span><b>安宁</b>：住房+蓄电池连成片，降低耗电</span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <span
+              className="inline-block w-3 h-3 rounded-full mt-0.5 flex-shrink-0"
+              style={{ backgroundColor: '#A78BFA' }}
+            />
+            <span><b>专注</b>：工坊连成片，提升产出效率</span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <span
+              className="inline-block w-3 h-3 rounded-full mt-0.5 flex-shrink-0"
+              style={{ backgroundColor: '#34D399' }}
+            />
+            <span><b>活力</b>：风车连成片，增加白天发电</span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <span
+              className="inline-block w-3 h-3 rounded-full mt-0.5 flex-shrink-0"
+              style={{ backgroundColor: '#F87171' }}
+            />
+            <span><b>混乱</b>：三种氛围混杂，加成抵消</span>
+          </li>
+        </ul>
+        <p className={`text-xs mt-2 ${isNight ? 'text-slate-400' : 'text-gray-500'}`}>
+          💡 相同情绪建筑2个以上连在一起触发共鸣，越多加成越强！
         </p>
       </div>
     </div>

@@ -7,8 +7,10 @@ import {
   FAULT_CHANCE,
   BUILDING_STATS,
   DAY_THRESHOLD,
+  MoodBonus,
 } from '../utils/constants';
 import { calculatePowerNetwork, countPoweredBuildings } from '../utils/powerCalculator';
+import { calculateMoodBonus } from '../utils/moodCalculator';
 
 const STORAGE_KEY = 'floating-island-grid-game-save';
 
@@ -29,6 +31,9 @@ interface GameState {
   poweredCells: Set<string>;
   totalGeneration: number;
   totalConsumption: number;
+  baseGeneration: number;
+  baseConsumption: number;
+  moodBonus: MoodBonus;
   showSettlement: boolean;
   setSelectedTool: (tool: ToolType) => void;
   placeOrRemove: (x: number, y: number) => void;
@@ -93,8 +98,9 @@ function loadFromLocalStorage(): PersistedState | null {
 }
 
 function recalcGrid(grid: GridCell[][], dayTime: number, storedPower: number) {
-  const { poweredCells, totalGeneration, totalConsumption, batteryCapacity } =
-    calculatePowerNetwork(grid, dayTime, storedPower);
+  const moodBonus = calculateMoodBonus(grid);
+  const { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption } =
+    calculatePowerNetwork(grid, dayTime, storedPower, moodBonus);
 
   const newGrid = grid.map((row) => row.map((c) => ({ ...c })));
   for (let yy = 0; yy < GRID_SIZE; yy++) {
@@ -103,7 +109,7 @@ function recalcGrid(grid: GridCell[][], dayTime: number, storedPower: number) {
     }
   }
 
-  return { newGrid, poweredCells, totalGeneration, totalConsumption, batteryCapacity };
+  return { newGrid, poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption, moodBonus };
 }
 
 function initGame(): Omit<GameState, keyof GameStateActions> {
@@ -113,19 +119,21 @@ function initGame(): Omit<GameState, keyof GameStateActions> {
   const storedPower = saved ? saved.storedPower : 10;
   const satisfaction = saved ? saved.satisfaction : 50;
 
-  const { newGrid, poweredCells, totalGeneration, totalConsumption, batteryCapacity } =
-    recalcGrid(grid, dayTime, storedPower);
+  const result = recalcGrid(grid, dayTime, storedPower);
 
   return {
-    grid: newGrid,
+    grid: result.newGrid,
     dayTime,
     storedPower,
-    maxStorage: batteryCapacity,
+    maxStorage: result.batteryCapacity,
     satisfaction,
     selectedTool: 'windmill',
-    poweredCells,
-    totalGeneration,
-    totalConsumption,
+    poweredCells: result.poweredCells,
+    totalGeneration: result.totalGeneration,
+    totalConsumption: result.totalConsumption,
+    baseGeneration: result.baseGeneration,
+    baseConsumption: result.baseConsumption,
+    moodBonus: result.moodBonus,
     showSettlement: false,
   };
 }
@@ -181,6 +189,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       totalGeneration: result.totalGeneration,
       totalConsumption: result.totalConsumption,
       maxStorage: result.batteryCapacity,
+      baseGeneration: result.baseGeneration,
+      baseConsumption: result.baseConsumption,
+      moodBonus: result.moodBonus,
     };
 
     saveToLocalStorage({
@@ -209,6 +220,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       totalGeneration: result.totalGeneration,
       totalConsumption: result.totalConsumption,
       maxStorage: result.batteryCapacity,
+      baseGeneration: result.baseGeneration,
+      baseConsumption: result.baseConsumption,
+      moodBonus: result.moodBonus,
     };
 
     saveToLocalStorage({
@@ -237,6 +251,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       totalGeneration: result.totalGeneration,
       totalConsumption: result.totalConsumption,
       maxStorage: result.batteryCapacity,
+      baseGeneration: result.baseGeneration,
+      baseConsumption: result.baseConsumption,
+      moodBonus: result.moodBonus,
     };
 
     saveToLocalStorage({
@@ -264,8 +281,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     const newDayTime = (state.dayTime + 0.5) % DAY_LENGTH;
 
-    const { poweredCells, totalGeneration, totalConsumption, batteryCapacity } =
-      calculatePowerNetwork(newGrid, newDayTime, state.storedPower);
+    const moodBonus = calculateMoodBonus(newGrid);
+    const { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption } =
+      calculatePowerNetwork(newGrid, newDayTime, state.storedPower, moodBonus);
 
     for (let yy = 0; yy < GRID_SIZE; yy++) {
       for (let xx = 0; xx < GRID_SIZE; xx++) {
@@ -320,6 +338,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       poweredCells,
       totalGeneration,
       totalConsumption,
+      baseGeneration,
+      baseConsumption,
+      moodBonus,
     });
   },
 
@@ -337,6 +358,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       poweredCells: result.poweredCells,
       totalGeneration: result.totalGeneration,
       totalConsumption: result.totalConsumption,
+      baseGeneration: result.baseGeneration,
+      baseConsumption: result.baseConsumption,
+      moodBonus: result.moodBonus,
       showSettlement: false,
     });
   },
