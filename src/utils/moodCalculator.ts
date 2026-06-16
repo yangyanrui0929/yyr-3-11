@@ -82,6 +82,7 @@ function calculateChaosPenalty(grid: GridCell[][]): number {
     calm: 0,
     focus: 0,
     vitality: 0,
+    stable: 0,
     chaos: 0,
     none: 0,
   };
@@ -96,7 +97,7 @@ function calculateChaosPenalty(grid: GridCell[][]): number {
     }
   }
 
-  const activeMoods = (['calm', 'focus', 'vitality'] as MoodType[]).filter(
+  const activeMoods = (['calm', 'focus', 'vitality', 'stable'] as MoodType[]).filter(
     (m) => moodCounts[m] > 0
   );
 
@@ -114,6 +115,7 @@ export function calculateMoodBonus(grid: GridCell[][]): MoodBonus {
   let calmConsumptionReduction = 0;
   let focusOutputBoost = 0;
   let vitalityDayGenBoost = 0;
+  let stableStorageBoost = 0;
 
   for (const region of regions) {
     const netBonus = Math.max(0, region.bonus - chaosPenalty);
@@ -127,6 +129,9 @@ export function calculateMoodBonus(grid: GridCell[][]): MoodBonus {
       case 'vitality':
         vitalityDayGenBoost = Math.max(vitalityDayGenBoost, netBonus);
         break;
+      case 'stable':
+        stableStorageBoost = Math.max(stableStorageBoost, netBonus);
+        break;
     }
   }
 
@@ -134,6 +139,7 @@ export function calculateMoodBonus(grid: GridCell[][]): MoodBonus {
     calmConsumptionReduction,
     focusOutputBoost,
     vitalityDayGenBoost,
+    stableStorageBoost,
     chaosPenalty,
     regions,
   };

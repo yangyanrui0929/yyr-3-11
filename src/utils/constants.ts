@@ -2,7 +2,7 @@ export type CellType = 'empty' | 'windmill' | 'house' | 'factory' | 'battery' | 
 
 export type ToolType = CellType | 'remove';
 
-export type MoodType = 'calm' | 'focus' | 'vitality' | 'chaos' | 'none';
+export type MoodType = 'calm' | 'focus' | 'vitality' | 'stable' | 'chaos' | 'none';
 
 export interface GridCell {
   x: number;
@@ -58,7 +58,7 @@ export const BUILDING_MOOD: Record<CellType, MoodType> = {
   windmill: 'vitality',
   house: 'calm',
   factory: 'focus',
-  battery: 'calm',
+  battery: 'stable',
   wire: 'none',
 };
 
@@ -66,6 +66,7 @@ export const MOOD_COLORS: Record<MoodType, string> = {
   calm: '#60A5FA',
   focus: '#A78BFA',
   vitality: '#34D399',
+  stable: '#FBBF24',
   chaos: '#F87171',
   none: '#9CA3AF',
 };
@@ -74,6 +75,7 @@ export const MOOD_NAMES: Record<MoodType, string> = {
   calm: '安宁',
   focus: '专注',
   vitality: '活力',
+  stable: '稳定',
   chaos: '混乱',
   none: '无',
 };
@@ -97,6 +99,7 @@ export interface MoodBonus {
   calmConsumptionReduction: number;
   focusOutputBoost: number;
   vitalityDayGenBoost: number;
+  stableStorageBoost: number;
   chaosPenalty: number;
   regions: MoodRegion[];
 }

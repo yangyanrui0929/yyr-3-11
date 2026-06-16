@@ -42,6 +42,7 @@ export function calculatePowerNetwork(
   const calmReduction = moodBonus?.calmConsumptionReduction ?? 0;
   const focusBoost = moodBonus?.focusOutputBoost ?? 0;
   const vitalityBoost = moodBonus?.vitalityDayGenBoost ?? 0;
+  const stableBoost = moodBonus?.stableStorageBoost ?? 0;
 
   const windmillSources: Array<{ x: number; y: number; gen: number }> = [];
   const batterySources: Array<{ x: number; y: number; discharge: number }> = [];
@@ -61,7 +62,7 @@ export function calculatePowerNetwork(
         windmillSources.push({ x, y, gen });
       }
       if (cell.type === 'battery') {
-        batteryCapacity += BUILDING_STATS.battery.storage;
+        batteryCapacity += BUILDING_STATS.battery.storage * (1 + stableBoost);
       }
       if (cell.type === 'house') {
         const baseCons = BUILDING_STATS.house.consumption;
@@ -72,7 +73,7 @@ export function calculatePowerNetwork(
       if (cell.type === 'factory') {
         const baseCons = BUILDING_STATS.factory.consumption;
         baseConsumption += baseCons;
-        const cons = baseCons * (1 - focusBoost * 0.5);
+        const cons = baseCons * (1 - focusBoost);
         totalConsumption += cons;
       }
     }
@@ -190,13 +191,14 @@ export function calculatePowerNetwork(
         (cell.type === 'house' || cell.type === 'factory') &&
         connectedCells.has(`${x},${y}`)
       ) {
+        const adjustedConsumption =
+          cell.type === 'house'
+            ? BUILDING_STATS.house.consumption * (1 - calmReduction)
+            : BUILDING_STATS.factory.consumption * (1 - focusBoost);
         connectedConsumers.push({
           x,
           y,
-          consumption:
-            cell.type === 'house'
-              ? BUILDING_STATS.house.consumption
-              : BUILDING_STATS.factory.consumption,
+          consumption: adjustedConsumption,
         });
       }
     }

@@ -169,7 +169,7 @@ export const StatusBar: React.FC = () => {
                     backgroundColor: `${MOOD_COLORS.focus}20`,
                     color: MOOD_COLORS.focus,
                   }}
-                  title="专注：提升工坊产出效率"
+                  title="专注：降低工坊耗电，提升产出效率"
                 >
                   专注 +{Math.round(moodBonus.focusOutputBoost * 100)}%
                 </div>
@@ -184,6 +184,18 @@ export const StatusBar: React.FC = () => {
                   title="活力：提升白天发电"
                 >
                   活力 +{Math.round(moodBonus.vitalityDayGenBoost * 100)}%
+                </div>
+              )}
+              {moodBonus.stableStorageBoost > 0 && (
+                <div
+                  className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                  style={{
+                    backgroundColor: `${MOOD_COLORS.stable}20`,
+                    color: MOOD_COLORS.stable,
+                  }}
+                  title="稳定：增加蓄电池容量"
+                >
+                  稳定 +{Math.round(moodBonus.stableStorageBoost * 100)}%
                 </div>
               )}
               {moodBonus.chaosPenalty > 0 && (
