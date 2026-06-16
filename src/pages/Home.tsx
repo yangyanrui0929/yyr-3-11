@@ -169,7 +169,7 @@ function GameGuide({ isNight }: { isNight: boolean }) {
               className="inline-block w-3 h-3 rounded-full mt-0.5 flex-shrink-0"
               style={{ backgroundColor: '#A78BFA' }}
             />
-            <span><b>专注</b>：工坊连成片，降低耗电提升产出</span>
+            <span><b>专注</b>：工坊连成片，提升产出</span>
           </li>
           <li className="flex items-start gap-1.5">
             <span

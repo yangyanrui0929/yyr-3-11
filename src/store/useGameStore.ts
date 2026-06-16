@@ -19,6 +19,7 @@ interface PersistedState {
   dayTime: number;
   storedPower: number;
   satisfaction: number;
+  totalProducts: number;
 }
 
 interface GameState {
@@ -33,6 +34,10 @@ interface GameState {
   totalConsumption: number;
   baseGeneration: number;
   baseConsumption: number;
+  totalOutput: number;
+  baseOutput: number;
+  poweredOutput: number;
+  totalProducts: number;
   moodBonus: MoodBonus;
   showSettlement: boolean;
   setSelectedTool: (tool: ToolType) => void;
@@ -71,6 +76,7 @@ function saveToLocalStorage(state: PersistedState): void {
       dayTime: state.dayTime,
       storedPower: state.storedPower,
       satisfaction: state.satisfaction,
+      totalProducts: state.totalProducts,
     });
     localStorage.setItem(STORAGE_KEY, data);
   } catch {
@@ -89,6 +95,7 @@ function loadFromLocalStorage(): PersistedState | null {
         dayTime: data.dayTime ?? 20,
         storedPower: data.storedPower ?? 10,
         satisfaction: data.satisfaction ?? 50,
+        totalProducts: data.totalProducts ?? 0,
       };
     }
   } catch {
@@ -99,7 +106,7 @@ function loadFromLocalStorage(): PersistedState | null {
 
 function recalcGrid(grid: GridCell[][], dayTime: number, storedPower: number) {
   const moodBonus = calculateMoodBonus(grid);
-  const { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption } =
+  const { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption, totalOutput, baseOutput, poweredOutput } =
     calculatePowerNetwork(grid, dayTime, storedPower, moodBonus);
 
   const newGrid = grid.map((row) => row.map((c) => ({ ...c })));
@@ -109,7 +116,7 @@ function recalcGrid(grid: GridCell[][], dayTime: number, storedPower: number) {
     }
   }
 
-  return { newGrid, poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption, moodBonus };
+  return { newGrid, poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption, totalOutput, baseOutput, poweredOutput, moodBonus };
 }
 
 function initGame(): Omit<GameState, keyof GameStateActions> {
@@ -118,6 +125,7 @@ function initGame(): Omit<GameState, keyof GameStateActions> {
   const dayTime = saved ? saved.dayTime : 20;
   const storedPower = saved ? saved.storedPower : 10;
   const satisfaction = saved ? saved.satisfaction : 50;
+  const totalProducts = saved ? saved.totalProducts : 0;
 
   const result = recalcGrid(grid, dayTime, storedPower);
 
@@ -133,6 +141,10 @@ function initGame(): Omit<GameState, keyof GameStateActions> {
     totalConsumption: result.totalConsumption,
     baseGeneration: result.baseGeneration,
     baseConsumption: result.baseConsumption,
+    totalOutput: result.totalOutput,
+    baseOutput: result.baseOutput,
+    poweredOutput: result.poweredOutput,
+    totalProducts,
     moodBonus: result.moodBonus,
     showSettlement: false,
   };
@@ -191,6 +203,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       maxStorage: result.batteryCapacity,
       baseGeneration: result.baseGeneration,
       baseConsumption: result.baseConsumption,
+      totalOutput: result.totalOutput,
+      baseOutput: result.baseOutput,
+      poweredOutput: result.poweredOutput,
       moodBonus: result.moodBonus,
     };
 
@@ -199,6 +214,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       dayTime: state.dayTime,
       storedPower: state.storedPower,
       satisfaction: state.satisfaction,
+      totalProducts: state.totalProducts,
     });
 
     set(nextState);
@@ -222,6 +238,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       maxStorage: result.batteryCapacity,
       baseGeneration: result.baseGeneration,
       baseConsumption: result.baseConsumption,
+      totalOutput: result.totalOutput,
+      baseOutput: result.baseOutput,
+      poweredOutput: result.poweredOutput,
       moodBonus: result.moodBonus,
     };
 
@@ -230,6 +249,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       dayTime: state.dayTime,
       storedPower: state.storedPower,
       satisfaction: state.satisfaction,
+      totalProducts: state.totalProducts,
     });
 
     set(nextState);
@@ -253,6 +273,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       maxStorage: result.batteryCapacity,
       baseGeneration: result.baseGeneration,
       baseConsumption: result.baseConsumption,
+      totalOutput: result.totalOutput,
+      baseOutput: result.baseOutput,
+      poweredOutput: result.poweredOutput,
       moodBonus: result.moodBonus,
     };
 
@@ -261,6 +284,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       dayTime: state.dayTime,
       storedPower: state.storedPower,
       satisfaction: state.satisfaction,
+      totalProducts: state.totalProducts,
     });
 
     set(nextState);
@@ -282,7 +306,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const newDayTime = (state.dayTime + 0.5) % DAY_LENGTH;
 
     const moodBonus = calculateMoodBonus(newGrid);
-    const { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption } =
+    const { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption, totalOutput, baseOutput, poweredOutput } =
       calculatePowerNetwork(newGrid, newDayTime, state.storedPower, moodBonus);
 
     for (let yy = 0; yy < GRID_SIZE; yy++) {
@@ -322,11 +346,14 @@ export const useGameStore = create<GameState>((set, get) => ({
       newSatisfaction = Math.max(0, state.satisfaction - 0.3);
     }
 
+    const newTotalProducts = state.totalProducts + poweredOutput * 0.1;
+
     saveToLocalStorage({
       grid: newGrid,
       dayTime: newDayTime,
       storedPower: newStoredPower,
       satisfaction: newSatisfaction,
+      totalProducts: newTotalProducts,
     });
 
     set({
@@ -340,6 +367,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       totalConsumption,
       baseGeneration,
       baseConsumption,
+      totalOutput,
+      baseOutput,
+      poweredOutput,
+      totalProducts: newTotalProducts,
       moodBonus,
     });
   },
@@ -360,6 +391,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       totalConsumption: result.totalConsumption,
       baseGeneration: result.baseGeneration,
       baseConsumption: result.baseConsumption,
+      totalOutput: result.totalOutput,
+      baseOutput: result.baseOutput,
+      poweredOutput: result.poweredOutput,
+      totalProducts: 0,
       moodBonus: result.moodBonus,
       showSettlement: false,
     });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../store/useGameStore';
-import { Sun, Moon, Zap, Battery, Smile, Meh, Frown, Sparkles } from 'lucide-react';
+import { Sun, Moon, Zap, Battery, Smile, Meh, Frown, Sparkles, Package } from 'lucide-react';
 import { MOOD_COLORS, MOOD_NAMES } from '../utils/constants';
 
 export const StatusBar: React.FC = () => {
@@ -11,6 +11,9 @@ export const StatusBar: React.FC = () => {
     storedPower,
     maxStorage,
     satisfaction,
+    poweredOutput,
+    totalOutput,
+    totalProducts,
     moodBonus,
     openSettlement,
   } = useGameStore();
@@ -83,6 +86,25 @@ export const StatusBar: React.FC = () => {
               }`}
             >
               {netPower >= 0 ? '▲' : '▼'} {Math.abs(netPower)}
+            </p>
+          </div>
+        </div>
+
+        <div className="h-10 w-px bg-gray-200" />
+
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+            <Package className="w-5 h-5 text-orange-500" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">物资产出</p>
+            <p className="text-sm font-bold text-gray-700">
+              <span className="text-green-600">+{poweredOutput.toFixed(1)}</span>
+              <span className="text-gray-400 mx-1">/</span>
+              <span className="text-gray-500">{totalOutput}</span>
+            </p>
+            <p className="text-xs text-gray-500">
+              累计: <b className="text-orange-600">{Math.floor(totalProducts)}</b>
             </p>
           </div>
         </div>

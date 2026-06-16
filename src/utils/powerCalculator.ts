@@ -31,6 +31,9 @@ export function calculatePowerNetwork(
   batteryCapacity: number;
   baseGeneration: number;
   baseConsumption: number;
+  totalOutput: number;
+  baseOutput: number;
+  poweredOutput: number;
 } {
   const isDay = dayTime < DAY_THRESHOLD;
   let totalGeneration = 0;
@@ -38,6 +41,9 @@ export function calculatePowerNetwork(
   let batteryCapacity = 0;
   let baseGeneration = 0;
   let baseConsumption = 0;
+  let totalOutput = 0;
+  let baseOutput = 0;
+  let poweredOutput = 0;
 
   const calmReduction = moodBonus?.calmConsumptionReduction ?? 0;
   const focusBoost = moodBonus?.focusOutputBoost ?? 0;
@@ -72,9 +78,13 @@ export function calculatePowerNetwork(
       }
       if (cell.type === 'factory') {
         const baseCons = BUILDING_STATS.factory.consumption;
+        const baseOut = BUILDING_STATS.factory.output;
         baseConsumption += baseCons;
-        const cons = baseCons * (1 - focusBoost);
+        baseOutput += baseOut;
+        const cons = baseCons;
+        const out = baseOut * (1 + focusBoost);
         totalConsumption += cons;
+        totalOutput += out;
       }
     }
   }
@@ -183,6 +193,7 @@ export function calculatePowerNetwork(
     x: number;
     y: number;
     consumption: number;
+    type: 'house' | 'factory';
   }> = [];
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
@@ -194,11 +205,12 @@ export function calculatePowerNetwork(
         const adjustedConsumption =
           cell.type === 'house'
             ? BUILDING_STATS.house.consumption * (1 - calmReduction)
-            : BUILDING_STATS.factory.consumption * (1 - focusBoost);
+            : BUILDING_STATS.factory.consumption;
         connectedConsumers.push({
           x,
           y,
           consumption: adjustedConsumption,
+          type: cell.type,
         });
       }
     }
@@ -211,10 +223,13 @@ export function calculatePowerNetwork(
     if (remainingPower >= consumer.consumption) {
       remainingPower -= consumer.consumption;
       poweredCells.add(`${consumer.x},${consumer.y}`);
+      if (consumer.type === 'factory') {
+        poweredOutput += BUILDING_STATS.factory.output * (1 + focusBoost);
+      }
     }
   }
 
-  return { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption };
+  return { poweredCells, totalGeneration, totalConsumption, batteryCapacity, baseGeneration, baseConsumption, totalOutput, baseOutput, poweredOutput };
 }
 
 export function countPoweredBuildings(

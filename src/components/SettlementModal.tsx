@@ -1,8 +1,8 @@
 import React from 'react';
 import { useGameStore } from '../store/useGameStore';
-import { GRID_SIZE, BUILDING_STATS } from '../utils/constants';
+import { GRID_SIZE, BUILDING_STATS, MOOD_COLORS, MOOD_NAMES } from '../utils/constants';
 import { countPoweredBuildings } from '../utils/powerCalculator';
-import { X, Smile, Meh, Frown, Zap, Battery, Home, Factory, Wind } from 'lucide-react';
+import { X, Smile, Meh, Frown, Zap, Battery, Home, Factory, Wind, Package, Sparkles } from 'lucide-react';
 
 export const SettlementModal: React.FC = () => {
   const {
@@ -16,6 +16,11 @@ export const SettlementModal: React.FC = () => {
     maxStorage,
     dayTime,
     poweredCells,
+    poweredOutput,
+    totalOutput,
+    totalProducts,
+    baseOutput,
+    moodBonus,
   } = useGameStore();
 
   if (!showSettlement) return null;
@@ -120,6 +125,122 @@ export const SettlementModal: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Battery className="w-4 h-4 text-amber-500" />
                 <span className="text-gray-600">蓄电池: <b>{batteries}</b> 组</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-orange-50 rounded-xl p-4 space-y-3">
+            <h3 className="text-sm font-bold text-gray-700 flex items-center gap-1.5">
+              <Package className="w-4 h-4 text-orange-500" />
+              物资产出
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">基础产出</span>
+                <span className="font-semibold">{baseOutput}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">加成产出</span>
+                <span className="font-semibold text-orange-600">+{(totalOutput - baseOutput).toFixed(1)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">当前产能</span>
+                <span className="font-bold text-orange-600">{totalOutput}</span>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <span className="text-gray-600">实际产出(有电)</span>
+                <span className="font-bold text-green-600">+{poweredOutput.toFixed(1)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">累计产出</span>
+                <span className="font-bold text-amber-600">{Math.floor(totalProducts)} 📦</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-purple-50 rounded-xl p-4 space-y-3">
+            <h3 className="text-sm font-bold text-gray-700 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-purple-500" />
+              情绪共鸣
+            </h3>
+            <div className="space-y-2 text-sm">
+              {moodBonus.calmConsumptionReduction > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: MOOD_COLORS.calm }}
+                    />
+                    <span className="text-gray-600">安宁</span>
+                  </span>
+                  <span className="font-semibold" style={{ color: MOOD_COLORS.calm }}>
+                    住房耗电 -{Math.round(moodBonus.calmConsumptionReduction * 100)}%
+                  </span>
+                </div>
+              )}
+              {moodBonus.focusOutputBoost > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: MOOD_COLORS.focus }}
+                    />
+                    <span className="text-gray-600">专注</span>
+                  </span>
+                  <span className="font-semibold" style={{ color: MOOD_COLORS.focus }}>
+                    工坊产出 +{Math.round(moodBonus.focusOutputBoost * 100)}%
+                  </span>
+                </div>
+              )}
+              {moodBonus.vitalityDayGenBoost > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: MOOD_COLORS.vitality }}
+                    />
+                    <span className="text-gray-600">活力</span>
+                  </span>
+                  <span className="font-semibold" style={{ color: MOOD_COLORS.vitality }}>
+                    白天发电 +{Math.round(moodBonus.vitalityDayGenBoost * 100)}%
+                  </span>
+                </div>
+              )}
+              {moodBonus.stableStorageBoost > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: MOOD_COLORS.stable }}
+                    />
+                    <span className="text-gray-600">稳定</span>
+                  </span>
+                  <span className="font-semibold" style={{ color: MOOD_COLORS.stable }}>
+                    蓄电池容量 +{Math.round(moodBonus.stableStorageBoost * 100)}%
+                  </span>
+                </div>
+              )}
+              {moodBonus.chaosPenalty > 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="flex items-center gap-1.5">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: MOOD_COLORS.chaos }}
+                    />
+                    <span className="text-gray-600">混乱</span>
+                  </span>
+                  <span className="font-semibold" style={{ color: MOOD_COLORS.chaos }}>
+                    加成 -{Math.round(moodBonus.chaosPenalty * 100)}%
+                  </span>
+                </div>
+              )}
+              {moodBonus.regions.length === 0 && (
+                <div className="text-center text-gray-400 text-sm py-2">
+                  暂无情绪共鸣
+                </div>
+              )}
+              <div className="text-xs text-gray-500 pt-2 border-t">
+                共 {moodBonus.regions.length} 个共鸣区域
               </div>
             </div>
           </div>
